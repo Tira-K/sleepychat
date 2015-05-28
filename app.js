@@ -24,7 +24,7 @@ var maxAllowedSimilarIps = parseInt(String(process.env.MAXSIMIPS || "10"));
 
 // Admin/Mod stuff
 var administrators = ["ElysianTail-Senpai", "ElysianMobile-Senpai", "PennyDreadful"];
-var moderators = ['MrMeapify', 'ScottB', 'Amburo', 'Phobos_D_Lawgiver', 'Anonymoususer2', 'Mushymoose', 'Gaige', "ToHypnoFu", "Tira~S", "Tira~K"];
+var moderators = ['MrMeapify', 'Amburo', 'Phobos_D_Lawgiver', 'Anonymoususer2', 'Mushymoose', 'Gaige', "ToHypnoFu", "Tira~S", "Tira~K"];
 
 //Acquire the ban list.
 var banList = [];
@@ -252,7 +252,7 @@ io.on('connection', function(socket)
             
             if (connToTest.tries > 2)
             {
-                socket.emit('denial', "This IP is creating too many connections too quickly.");
+                socket.emit('denial', "This IP is creating too many connections too quickly. Please wait 10 minutes, and try again.");
                 socket.conn.close();
                 timeToReset = 1000*60*10; //10 minutes.
             }
@@ -287,7 +287,7 @@ io.on('connection', function(socket)
             
             spamPoints--;
             if (spamPoints < 0) { spamPoints = 0; }
-            else if (spamPoints > 10 && !room) { socket.emit('information', "[INFO] You've been kicked for spamming the chat."); socket.conn.close(); }
+            else if (spamPoints > 10 && !room) { socket.emit('information', "[INFO] You've been auto-kicked for spamming the chat. For more information, questions, or feedback, please contact support@sleepychat.com"); socket.conn.close(); }
         }, 2000);
         
         socket.on('login', function(data)
@@ -348,7 +348,7 @@ io.on('connection', function(socket)
             }
             if(NickSimilar(data.nick))
             {
-                socket.emit('information', "[INFO] The nickname you chose was in use. Please reload the page and choose another.");
+                socket.emit('information', "[INFO] The nickname you chose was in use. Please reload the page and choose another. If you feel you have reached this message in error, please contact support@sleepychat.com");
                 socket.conn.close();
                 return;
             }
@@ -356,13 +356,13 @@ io.on('connection', function(socket)
             {
                 var banned = checkForBans(data, socket, ip);
                 var banDate = new Date(banned.date);
-                socket.emit('information', "[INFO] You've been banned from using this site for "+banned.days.toString()+" day"+(banned.days > 1 ? "s" : "")+" total. (Banned on "+(banDate.getMonth()+1).toString()+"/"+banDate.getDate().toString()+"/"+banDate.getFullYear().toString()+")");
+                socket.emit('information', "[INFO] You've been banned from using this site for "+banned.days.toString()+" day"+(banned.days > 1 ? "s" : "")+" total. For more information, questions, or feedback, please contact support@sleepychat.com (Banned on "+(banDate.getMonth()+1).toString()+"/"+banDate.getDate().toString()+"/"+banDate.getFullYear().toString()+")");
                 socket.conn.close();
                 return;
             }
             else if (data.nabbed != "nope")
             {
-                socket.emit('information', "[INFO] You've been banned from using this site.");
+                socket.emit('information', "[INFO] You've been banned from using this site. For more information, questions, or feedback, please contact support@sleepychat.com");
                 socket.conn.close();
                 return;
             }
@@ -417,7 +417,7 @@ io.on('connection', function(socket)
                     {
                         socket.join('bigroom');
                         io.to('bigroom').emit('information', "[INFO] " + getAuthority(user) + nameAppend(user.nick, user.gender, user.role) + " has joined.");
-                        socket.emit('information', "[INFO] All Sleepychat activity may be monitored in real time by moderators. Users who wish to operate outside of activity logging are invited to create a private room and opt out of logging with \"/private\"."+(!user.mod && !user.admin ? "<br /><span style='color: red;'>IMPORTANT:</span> A banned user has been recently asking people for logs. If someone asks you, please report them.<br />If you're new, type \"/help\" and hit enter to see a list of commands, or type \"/guide\" for a general list of guidelines to follow." : "")+"<br />Extended hypnosis play (longer than 10 minutes) is now prohibited in the main chat. Those who wish to participate in or view public sessions may visit <a href='/room/playground/"+user.token+"' target='_blank'>The Playground</a>.<br />(You can also type \"/playground\" to get there.)");
+                        socket.emit('information', "[INFO] All Sleepychat activity may be monitored in real time by moderators. Users who wish to operate outside of activity logging are invited to create a private room and opt out of logging with \"/private\"."+(!user.mod && !user.admin ? "<br /><span style='color: red;'>IMPORTANT:</span> A banned user has been recently asking people for logs. If someone asks you, please report them.<br />If you're new, type \"/help\" and hit enter to see a list of commands, or type \"/guide\" for a general list of guidelines to follow. For more information, questions, or feedback, please contact support@sleepychat.com" : "")+"<br />Extended play (longer than 10 minutes) is now prohibited in the main chat. Those who wish to participate in or watch public play may visit <a href='/room/playground/"+user.token+"' target='_blank'>The Playground</a>.<br />(You can also type \"/playground\" to get there.)");
                         io.to('bigroom').emit('rosterupdate', generateRoster(users));
                         if (data.isMobile)
                         {
@@ -426,7 +426,7 @@ io.on('connection', function(socket)
                     }
                     else
                     {
-                        socket.emit('information', "[INFO] Hi there, " + nick + "! You're now connected to the server.");
+                        socket.emit('information', "[INFO] Hi there, " + nick + "! You're now connected to the server. Please be aware that prior, lucid, and explicit consent is required for hypnotic play (this includes the exchange of personal information and enslavement). For more information, questions, or feedback, please contact support@sleepychat.com");
                     }
                     console.log(nick +" has joined. IP: " + ip);
 					var patternString = nick;
@@ -475,7 +475,7 @@ io.on('connection', function(socket)
                     socket.emit('nickupdate', nick);
                     room.here.push(finduser);
                     io.to(room.token).emit('rosterupdate', generateRoster(room.here));
-                    socket.emit('information', "[INFO] For your safety, private rooms are logged and viewable only by the Admin and Moderators. The room can opt out of logging if <strong>all</strong> users opt out.<br />You can opt out by typing \"/private\" into chat. You can also force logging for complete safety by typing \"/private never\" into chat.<br />Please only opt out if you trust your hypnotist.");
+                    socket.emit('information', "[INFO] For your safety, private rooms are logged and viewable only by the Admin and Moderators. The room can opt out of logging if <strong>all</strong> users opt out.<br />You can opt out by typing \"/private\" into chat. You can also force logging for complete safety by typing \"/private never\" into chat.<br />Please only opt out if you trust your hypnotist. For more information, questions, or feedback, please contact support@sleepychat.com");
                     io.to(room.token).emit('information', "[INFO] " + nick + " has joined.");
 					
 					var intv = setInterval(function() {
@@ -684,7 +684,7 @@ io.on('connection', function(socket)
                                         users[j].socket.emit('information', "[INFO] User \""+user.nick+"\" @ IP \""+user.realIp+"\" used a banned word/phrase:<br>"+message);
                                     }
                                 }
-                                socket.emit('information', "[INFO] You've said a banned word or phrase.")
+                                socket.emit('information', "[INFO] You've said a banned word or phrase. For more information, questions, or feedback, please contact support@sleepychat.com")
                                 console.log(user.nick+" has sent a message with a banned word/phrase.")
                                 socket.conn.close();
                                 return;
@@ -1105,7 +1105,7 @@ io.on('connection', function(socket)
                         }
                         else
                         {
-                            socket.emit('information', "[INFO] You can't kick Senpai!");
+                            socket.emit('information', "[INFO] You can't kick an admin!");
                         }
                     }
                     else if (message.lastIndexOf('/ban ', 0) === 0 && (user.admin || user.mod))
@@ -1170,7 +1170,7 @@ io.on('connection', function(socket)
                         }
                         else
                         {
-                            socket.emit('information', "[INFO] You can't ban Senpai!");
+                            socket.emit('information', "[INFO] You can't ban an admin!");
                         }
                     }
                     else if (message.lastIndexOf('/banname ', 0) === 0 && (user.admin || user.mod))
@@ -1235,7 +1235,7 @@ io.on('connection', function(socket)
                         }
                         else
                         {
-                            socket.emit('information', "[INFO] You can't ban Senpai!");
+                            socket.emit('information', "[INFO] You can't ban an admin!");
                         }
                     }
                     else if (message.lastIndexOf('/banip ', 0) === 0 && (user.admin || user.mod))
@@ -1351,7 +1351,7 @@ io.on('connection', function(socket)
                         }
                         else
                         {
-                            socket.emit('information', "[INFO] You can't ban Senpai!");
+                            socket.emit('information', "[INFO] You can't ban an admin!");
                         }
                     }
                     else if (message.lastIndexOf('/banlist', 0) === 0 && (user.admin || user.mod))
@@ -1398,7 +1398,7 @@ io.on('connection', function(socket)
                         }
                         else
                         {
-                            socket.emit('information', "[INFO] Only the Admin may modify the news feed at this time.");
+                            socket.emit('information', "[INFO] Only the Admins may modify the news feed at this time.");
                         }
                     }
                     else if (message.lastIndexOf('/', 0) === 0)
